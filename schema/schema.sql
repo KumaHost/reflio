@@ -64,24 +64,6 @@ create policy "Can update own user data." on teams for update using (is_member_o
 create policy "Can insert own user data." on teams for insert with check (auth.uid() = id);
 
 /** 
-* Team Invites
-* Note: This table contains user data. Users should only be able to view and update their own data.
-*/
-create table invites (
-  -- UUID from auth.users
-  id uuid references auth.users not null,
-  invite_id text primary key unique not null default generate_uid(15) unique,
-  team_id text references teams not null,
-  email text default null,
-  accepted boolean default false,
-  created timestamp with time zone default timezone('utc'::text, now()) not null
-);
-alter table invites enable row level security;
-create policy "Can view own user data." on invites for select using (email in (select email from users where auth.email() = email));
-create policy "Can update own user data." on invites for update using (email in (select email from users where auth.email() = email));
-create policy "Can insert own user data." on invites for insert with check (email in (select email from users where auth.email() = email));
-
-/** 
 * USERS
 * Note: This table contains user data. Users should only be able to view and update their own data.
 */
@@ -100,6 +82,24 @@ create table users (
 alter table users enable row level security;
 create policy "Can view own user data." on users for select using (auth.uid() = id);
 create policy "Can update own user data." on users for update using (auth.uid() = id);
+
+/** 
+* Team Invites
+* Note: This table contains user data. Users should only be able to view and update their own data.
+*/
+create table invites (
+  -- UUID from auth.users
+  id uuid references auth.users not null,
+  invite_id text primary key unique not null default generate_uid(15) unique,
+  team_id text references teams not null,
+  email text default null,
+  accepted boolean default false,
+  created timestamp with time zone default timezone('utc'::text, now()) not null
+);
+alter table invites enable row level security;
+create policy "Can view own user data." on invites for select using (email in (select email from users where auth.email() = email));
+create policy "Can update own user data." on invites for update using (email in (select email from users where auth.email() = email));
+create policy "Can insert own user data." on invites for insert with check (email in (select email from users where auth.email() = email));
 
 /** 
 * Companies
@@ -271,11 +271,11 @@ create table affiliate_emails (
   email_sent boolean default false,
   created timestamp with time zone default timezone('utc'::text, now()) not null
 );
-alter table commissions enable row level security;
-create policy "Can view own user data." on commissions for select using (is_member_of(auth.uid(), team_id));
-create policy "Can update own user data." on commissions for update using (is_member_of(auth.uid(), team_id));
-create policy "Can insert own user data." on commissions for insert with check (is_member_of(auth.uid(), team_id));
-create policy "Can delete own user data." on commissions for delete using (is_member_of(auth.uid(), team_id));
+alter table affiliate_emails enable row level security;
+create policy "Can view own user data." on affiliate_emails for select using (is_member_of(auth.uid(), team_id));
+create policy "Can update own user data." on affiliate_emails for update using (is_member_of(auth.uid(), team_id));
+create policy "Can insert own user data." on affiliate_emails for insert with check (is_member_of(auth.uid(), team_id));
+create policy "Can delete own user data." on affiliate_emails for delete using (is_member_of(auth.uid(), team_id));
 
 /** 
 * Assets
